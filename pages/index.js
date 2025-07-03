@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Head from 'next/head'
 import QueryForm from '../components/QueryForm'
 import ResultsTable from '../components/ResultsTable'
-import Visualizations from '../components/Visualizations'
+import Visualizations from '../components/visualizations'
 
 // Enhanced synonym system
 const DRUG_SYNONYMS = {
