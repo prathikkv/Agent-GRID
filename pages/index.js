@@ -7,7 +7,7 @@ import { useState } from 'react'
 import Head from 'next/head'
 import QueryForm from '../components/QueryForm'
 import ResultsTable from '../components/ResultsTable'
-import Visualizations from '../components/Visualizations'
+import Visualizations from '../components/visualizations'
 import SynonymPrompt from '../components/SynonymPrompt'
 
 export default function Home() {
