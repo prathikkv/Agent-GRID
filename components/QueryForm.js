@@ -47,41 +47,72 @@ export default function QueryForm({ onSubmit, loading }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="query" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="query" className="form-label">
           Natural Language Query
         </label>
         
-        <div className="relative">
+        <div style={{ position: 'relative' }}>
           <textarea
             id="query"
             rows={3}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g., List diseases in Phase-2 for Imatinib"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            className="form-input"
             disabled={loading}
             required
+            style={{ width: '100%', minHeight: '80px' }}
           />
           
           <button
             type="button"
             onClick={() => setShowExamples(!showExamples)}
-            className="absolute top-2 right-2 text-xs text-blue-600 hover:text-blue-800 font-medium"
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              fontSize: '12px',
+              color: '#3b82f6',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             Examples
           </button>
         </div>
 
         {showExamples && (
-          <div className="mt-2 bg-gray-50 border border-gray-200 rounded-md p-3">
-            <p className="text-xs font-medium text-gray-700 mb-2">Example Queries:</p>
-            <div className="space-y-1">
+          <div style={{
+            marginTop: '8px',
+            backgroundColor: '#f9fafb',
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            padding: '12px'
+          }}>
+            <p style={{ fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>
+              Example Queries:
+            </p>
+            <div>
               {EXAMPLE_QUERIES.map((example, index) => (
                 <button
                   key={index}
                   type="button"
                   onClick={() => useExampleQuery(example)}
-                  className="block w-full text-left text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    fontSize: '12px',
+                    color: '#3b82f6',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px 8px',
+                    cursor: 'pointer',
+                    borderRadius: '4px'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#eff6ff'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
                   {example}
                 </button>
@@ -92,27 +123,23 @@ export default function QueryForm({ onSubmit, loading }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="form-label">
           Select Databases
         </label>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-2" style={{ marginTop: '12px' }}>
           {AVAILABLE_DATABASES.map((database) => (
             <label
               key={database}
-              className="relative flex items-start cursor-pointer"
+              style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
             >
-              <div className="flex items-center h-5">
-                <input
-                  type="checkbox"
-                  checked={selectedDatabases.includes(database)}
-                  onChange={() => handleDatabaseChange(database)}
-                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <span className="font-medium text-gray-700">{database}</span>
-              </div>
+              <input
+                type="checkbox"
+                checked={selectedDatabases.includes(database)}
+                onChange={() => handleDatabaseChange(database)}
+                style={{ marginRight: '8px' }}
+              />
+              <span className="text-sm">{database}</span>
             </label>
           ))}
         </div>
@@ -122,11 +149,10 @@ export default function QueryForm({ onSubmit, loading }) {
         <button
           type="submit"
           disabled={loading || !query.trim() || selectedDatabases.length === 0}
-          className={`px-6 py-2 rounded-md font-medium text-sm transition-colors ${
-            loading || !query.trim() || selectedDatabases.length === 0
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-          }`}
+          className="btn"
+          style={{
+            opacity: (loading || !query.trim() || selectedDatabases.length === 0) ? 0.5 : 1
+          }}
         >
           {loading ? 'Searching...' : 'Search Databases'}
         </button>
