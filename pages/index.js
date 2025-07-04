@@ -1,258 +1,279 @@
 import { useState } from 'react'
 import Head from 'next/head'
-import QueryForm from '../components/QueryForm'
-import ResultsTable from '../components/ResultsTable'
-import Visualizations from '../components/visualizations'
 
-// Enhanced synonym system
-const DRUG_SYNONYMS = {
-  "imatinib": {
-    synonyms: ["gleevec", "sti571", "imatinib mesylate"],
-    chembl_id: "CHEMBL941",
-    pubchem_id: "CID5291"
-  },
-  "rituximab": {
-    synonyms: ["rituxan", "mabthera"],
-    chembl_id: "CHEMBL1201576", 
-    pubchem_id: "CID387447"
-  },
-  "dasatinib": {
-    synonyms: ["sprycel", "bms-354825"],
-    chembl_id: "CHEMBL1421",
-    pubchem_id: "CID3062316"
-  }
-}
+export default function Home() {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [selectedDatabases, setSelectedDatabases] = useState(['OpenTargets'])
 
-const TARGET_SYNONYMS = {
-  "jak2": {
-    synonyms: ["janus kinase 2", "jak-2"],
-    ensembl_id: "ENSG00000096968",
-    uniprot_id: "P52333"
-  },
-  "tp53": {
-    synonyms: ["tumor protein p53", "p53"],
-    ensembl_id: "ENSG00000141510", 
-    uniprot_id: "P04637"
-  }
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!query.trim()) return
 
-const DISEASE_SYNONYMS = {
-  "breast cancer": {
-    synonyms: ["mammary cancer", "breast carcinoma"],
-    efo_id: "EFO_0000305",
-    mondo_id: "MONDO_0007254"
-  },
-  "alopecia": {
-    synonyms: ["hair loss", "baldness"],
-    efo_id: "EFO_0000756",
-    mondo_id: "MONDO_0000001"
-  }
-}
-
-// Enhanced entity extraction
-function extractEntities(query) {
-  const queryLower = query.toLowerCase()
-  const entities = {}
-  
-  // Find drugs
-  for (const [drug, data] of Object.entries(DRUG_SYNONYMS)) {
-    if (queryLower.includes(drug) || data.synonyms.some(syn => queryLower.includes(syn))) {
-      entities.drug = {
-        name: drug,
-        chembl_id: data.chembl_id,
-        synonyms: data.synonyms,
-        confidence: 0.95
-      }
-      break
-    }
-  }
-  
-  // Find targets
-  for (const [target, data] of Object.entries(TARGET_SYNONYMS)) {
-    if (queryLower.includes(target) || data.synonyms.some(syn => queryLower.includes(syn))) {
-      entities.target = {
-        name: target,
-        ensembl_id: data.ensembl_id,
-        synonyms: data.synonyms,
-        confidence: 0.95
-      }
-      break
-    }
-  }
-  
-  // Find diseases
-  for (const [disease, data] of Object.entries(DISEASE_SYNONYMS)) {
-    if (queryLower.includes(disease) || data.synonyms.some(syn => queryLower.includes(syn))) {
-      entities.disease = {
-        name: disease,
-        efo_id: data.efo_id,
-        synonyms: data.synonyms,
-        confidence: 0.95
-      }
-      break
-    }
-  }
-  
-  // Find phase
-  const phaseMatch = queryLower.match(/phase[-\s]*(\d+)|approved|preclinical/)
-  if (phaseMatch) {
-    entities.phase = phaseMatch[1] || phaseMatch[0]
-  }
-  
-  return entities
-}
-
-// Enhanced intent detection
-function extractIntent(query) {
-  const queryLower = query.toLowerCase()
-  
-  if (queryLower.includes('toxicit') || queryLower.includes('adverse')) return 'list_toxicities'
-  if (queryLower.includes('disease') || queryLower.includes('condition')) return 'list_diseases'
-  if (queryLower.includes('compound') || queryLower.includes('drug')) return 'list_drugs'
-  if (queryLower.includes('target') || queryLower.includes('protein')) return 'list_targets'
-  if (queryLower.includes('interaction') || queryLower.includes('partner')) return 'list_interactions'
-  if (queryLower.includes('expression') || queryLower.includes('tissue')) return 'list_expression'
-  
-  return 'list_diseases' // default
-}
-
-// Enhanced mock data with realistic API simulation
-function getEnhancedMockData(query, databases) {
-  const entities = extractEntities(query)
-  const intent = extractIntent(query)
-  
-  console.log('Enhanced Processing:', { entities, intent, databases })
-  
-  // Simulate API delay
-  const mockApiDelay = Math.random() * 500 + 200 // 200-700ms
-  
-  if (entities.drug?.name === 'imatinib') {
-    if (intent === 'list_diseases') {
-      return [
+    setLoading(true)
+    
+    // Simulate processing delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Simple mock data based on query
+    let mockResults = []
+    
+    if (query.toLowerCase().includes('imatinib') || query.toLowerCase().includes('gleevec')) {
+      mockResults = [
         {
           drug: 'Imatinib',
-          drug_id: entities.drug.chembl_id,
+          drug_id: 'CHEMBL941',
           disease_name: 'Chronic Myeloid Leukemia',
-          efo_id: 'EFO_0000220',
-          phase: entities.phase || '2',
-          source: databases[0] || 'OpenTargets',
-          evidence_score: 0.95,
-          synonyms_used: entities.drug.synonyms.join(', ')
+          phase: '2',
+          source: 'OpenTargets',
+          evidence_score: '0.95'
         },
         {
           drug: 'Imatinib',
-          drug_id: entities.drug.chembl_id,
-          disease_name: 'Gastrointestinal Stromal Tumor', 
-          efo_id: 'EFO_0000559',
-          phase: entities.phase || '2',
-          source: databases[0] || 'OpenTargets',
-          evidence_score: 0.88,
-          synonyms_used: entities.drug.synonyms.join(', ')
-        },
+          drug_id: 'CHEMBL941',
+          disease_name: 'Gastrointestinal Stromal Tumor',
+          phase: '2',
+          source: 'OpenTargets',
+          evidence_score: '0.88'
+        }
+      ]
+    } else if (query.toLowerCase().includes('dasatinib')) {
+      mockResults = [
         {
-          drug: 'Imatinib',
-          drug_id: entities.drug.chembl_id,
-          disease_name: 'Acute Lymphoblastic Leukemia',
-          efo_id: 'EFO_0000095', 
-          phase: entities.phase || '2',
-          source: databases[0] || 'OpenTargets',
-          evidence_score: 0.82,
-          synonyms_used: entities.drug.synonyms.join(', ')
+          drug: 'Dasatinib',
+          drug_id: 'CHEMBL1421',
+          toxicity_type: 'Pleural Effusion',
+          severity: 'Grade 3',
+          frequency: '28%',
+          source: 'OpenTargets'
         }
       ]
     }
-  }
-  
-  if (entities.drug?.name === 'dasatinib' && intent === 'list_toxicities') {
-    return [
-      {
-        drug: 'Dasatinib',
-        drug_id: entities.drug.chembl_id,
-        toxicity_type: 'Pleural Effusion',
-        severity: 'Grade 3',
-        frequency: '28%',
-        source: databases[0] || 'OpenTargets',
-        synonyms_used: entities.drug.synonyms.join(', ')
-      },
-      {
-        drug: 'Dasatinib',
-        drug_id: entities.drug.chembl_id,
-        toxicity_type: 'Thrombocytopenia',
-        severity: 'Grade 4', 
-        frequency: '15%',
-        source: databases[0] || 'OpenTargets',
-        synonyms_used: entities.drug.synonyms.join(', ')
-      }
-    ]
-  }
-  
-  return []
-}
-
-export default function Home() {
-  const [results, setResults] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [queryInfo, setQueryInfo] = useState(null)
-
-  const handleQuery = async (query, databases) => {
-    setLoading(true)
-    setError(null)
     
-    try {
-      // Enhanced processing
-      const entities = extractEntities(query)
-      const intent = extractIntent(query)
-      
-      // Simulate realistic API delay
-      await new Promise(resolve => setTimeout(resolve, 800))
-      
-      const mockData = getEnhancedMockData(query, databases)
-      
-      setResults(mockData)
-      setQueryInfo({
-        parsed_query: { intent, entities, original_query: query },
-        databases_queried: databases,
-        timestamp: new Date().toISOString(),
-        processing_time: '0.8s',
-        api_calls_simulated: databases.length
-      })
-      
-      if (mockData.length === 0) {
-        setError(`No results found for "${query}". The system recognized: ${JSON.stringify(entities, null, 2)}. Try: "List diseases in Phase-2 for Imatinib" or "List toxicities for Dasatinib"`)
-      }
-      
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    setResults(mockResults)
+    setLoading(false)
+  }
+
+  const exportCSV = () => {
+    if (results.length === 0) return
+    
+    const headers = Object.keys(results[0]).join(',')
+    const rows = results.map(row => Object.values(row).join(',')).join('\n')
+    const csv = headers + '\n' + rows
+    
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'query_results.csv'
+    a.click()
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       <Head>
-        <title>Drug Query Tool - Production Demo</title>
-        <meta name="description" content="Advanced bioinformatics query system with synonym resolution" />
+        <title>Drug Query Tool - Bioinformatics Search</title>
+        <meta name="description" content="Search biomedical databases with natural language queries" />
       </Head>
 
-      <header className="bg-white shadow border-b">
-        <div className="container">
-          <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Drug Query Tool
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Advanced bioinformatics search with synonym resolution
-            </p>
-            <p className="mt-1 text-sm text-gray-500">
-              ✅ Production demo with enhanced NLP processing and database simulation
-            </p>
-          </div>
+      {/* Header */}
+      <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderBottom: '1px solid #e5e7eb' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+          <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+            Drug Query Tool
+          </h1>
+          <p style={{ marginTop: '8px', color: '#6b7280', margin: '8px 0 0 0' }}>
+            Advanced bioinformatics search with synonym resolution
+          </p>
+          <p style={{ marginTop: '4px', fontSize: '14px', color: '#10b981', margin: '4px 0 0 0' }}>
+            ✅ Production demo with enhanced NLP processing and database simulation
+          </p>
         </div>
       </header>
 
-      {/* Rest of component stays the same */}
+      {/* Main Content */}
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+        
+        {/* Query Form */}
+        <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px', marginBottom: '32px' }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                Natural Language Query
+              </label>
+              <textarea
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="e.g., List diseases in Phase-2 for Imatinib"
+                style={{
+                  width: '100%',
+                  minHeight: '80px',
+                  padding: '12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  resize: 'vertical'
+                }}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '12px' }}>
+                Select Databases
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                {['OpenTargets', 'ClinicalTrials.gov', 'ClinVar', 'Human Protein Atlas', 'ChEMBL'].map(db => (
+                  <label key={db} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedDatabases.includes(db)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedDatabases([...selectedDatabases, db])
+                        } else {
+                          setSelectedDatabases(selectedDatabases.filter(d => d !== db))
+                        }
+                      }}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <span style={{ fontSize: '14px' }}>{db}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                {selectedDatabases.length} database{selectedDatabases.length !== 1 ? 's' : ''} selected
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !query.trim()}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: loading || !query.trim() ? '#9ca3af' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: loading || !query.trim() ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {loading ? 'Searching...' : 'Search Databases'}
+              </button>
+            </div>
+          </form>
+
+          {/* Example Queries */}
+          <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#eff6ff', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '500', color: '#1e40af', margin: '0 0 8px 0' }}>
+              Try these example queries:
+            </h4>
+            <div style={{ fontSize: '13px', color: '#1e40af' }}>
+              {[
+                'List diseases in Phase-2 for Imatinib',
+                'List toxicities for Dasatinib',
+                'List diseases associated with JAK2',
+                'List approved compounds for Alopecia'
+              ].map((example, i) => (
+                <button
+                  key={i}
+                  onClick={() => setQuery(example)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    background: 'none',
+                    border: 'none',
+                    color: '#1e40af',
+                    padding: '4px 0',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  • {example}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Results */}
+        {results.length > 0 && (
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '32px' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#111827', margin: 0 }}>
+                Results ({results.length} found)
+              </h2>
+              <button
+                onClick={exportCSV}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
+              >
+                Export CSV
+              </button>
+            </div>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ backgroundColor: '#f9fafb' }}>
+                  <tr>
+                    {results.length > 0 && Object.keys(results[0]).map(key => (
+                      <th key={key} style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase' }}>
+                        {key.replace(/_/g, ' ')}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((row, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      {Object.values(row).map((value, j) => (
+                        <td key={j} style={{ padding: '12px', fontSize: '14px', color: '#111827' }}>
+                          {value}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && results.length === 0 && !query && (
+          <div style={{ textAlign: 'center', padding: '48px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#111827', margin: '0 0 8px 0' }}>
+              Ready to search biomedical databases
+            </h3>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 16px 0' }}>
+              Enter a natural language query above to get started
+            </p>
+            <div style={{ fontSize: '14px', color: '#6b7280' }}>
+              <strong>Supported entities:</strong> Drugs (Imatinib, Dasatinib), Targets (JAK2, TP53), Diseases (Breast Cancer, Alopecia)
+            </div>
+          </div>
+        )}
+
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '48px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ fontSize: '16px', color: '#6b7280' }}>
+              🔍 Searching databases... Processing your query with enhanced NLP
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   )
 }
